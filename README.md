@@ -1,3 +1,15 @@
+# New front web application
+
+## Bootstrap application 
+
+Freshly bootstrap an application with create-react-app in typescript mode
+
+## Docker 
+
+Use the default well-known docker environment
+ 
+-----
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

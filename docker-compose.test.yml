@@ -1,0 +1,91 @@
+version: '3.7'
+
+services:
+
+  api-nginx:
+    environment:
+      - 'SYMFONY_ENV=test'
+    image: docker.registry.tmm-software.net/aptelecare/api/nginx:${API_BRANCH:-review}
+    ports:
+      - 51080:80
+    links:
+      - api-php:php
+
+  api-php:
+    depends_on:
+      - api-postgresql
+    environment:
+      - 'SYMFONY_ENV=test'
+      - 'FEATURE_FLAG_PATIENT_PROFILE_EDITION=true'
+      - 'FEATURE_FLAG_PATIENT_SIGN_UP=true'
+    image: docker.registry.tmm-software.net/aptelecare/api/php:${API_BRANCH:-review}
+    volumes:
+      # Use "legacy" app-web fixtures for testing (after hautelook + doctrine 1.12)
+#      - ./fixtures/legacy:/srv/api/src/TestBundle/DataFixtures
+      - api-php-files:/srv/api/var/files
+    links:
+      - api-postgresql:postgresql
+
+  api-postgresql:
+    environment:
+      - 'POSTGRES_DB=aptelecare'
+      - 'POSTGRES_PASSWORD=aptelecare'
+      - 'POSTGRES_USER=aptelecare'
+    image: docker.registry.tmm-software.net/aptelecare/api/postgresql:${API_BRANCH:-review}
+    ports:
+      - 55432:5432
+    volumes:
+      - api-postgres-data:/var/lib/postgresql/data
+
+  mailcatcher:
+    image: sj26/mailcatcher
+    ports:
+      - 51025:1025
+      - 58080:1080
+
+  # See https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention
+  # 3.141.59-20200409: Chrome 81.0, Firefox 75.0, Opera 67.0
+  # 3.141.59-20200326: Chrome 80.0, Firefox 74.0, Opera 67.0
+  # 3.141.59-zirconium: Chrome 80.0, Firefox 73
+  # 3.141.59-oxygen: Chrome 74.0, Firefox 67.0
+  selenium-chrome:
+    image: selenium/standalone-chrome-debug:3.141.59-20200409
+    environment:
+      - SCREEN_WIDTH=1366
+      - SCREEN_HEIGHT=768
+      - SCREEN_DEPTH=24
+      - SCREEN_DPI=74
+      - START_XVFB=true
+      - GRID_DEBUG=false
+      - shm_size=1g
+    ports:
+      - 55900:5900
+    volumes:
+      - /dev/shm:/dev/shm
+
+  # NoVNC used to view what is Selenium doing during the tests!
+  novnc:
+    image: javanile/novnc
+    environment:
+      - REMOTE_HOST=localhost
+      - REMOTE_PORT=15900
+    ports:
+      - 58081:8081
+    links:
+      - selenium-chrome
+
+  sonar-scanner:
+    image: sonarsource/sonar-scanner-cli:latest
+    env_file:
+      - sonar.env
+    entrypoint: [""]
+    working_dir: /srv/new-app-web
+    command: "true"
+    volumes:
+      - ./:/srv/new-app-web:rw
+
+volumes:
+
+  api-php-files: {}
+
+  api-postgres-data: {}

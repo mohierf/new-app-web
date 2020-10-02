@@ -1,0 +1,15 @@
+# Ignore app files
+
+/public/static
+/public/asset-manifest.json
+/coverage
+/node_modules
+/reports
+
+# Ignore dot files
+
+**/.DS_Store
+**/.idea
+**/.git
+**/.gitignore
+**/.travis

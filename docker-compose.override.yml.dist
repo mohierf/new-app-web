@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+
+    nginx:
+        environment:
+            # Comment the first line hereunder and uncomment the second line to run Nightwatch tests locally
+            - 'API_ENDPOINT=http://localhost:1080'
+#            - 'API_ENDPOINT=http://api-nginx:80'
+            - 'WS_ENDPOINT=http://sigsrv-node:3000'
+        ports:
+            - '3001:80'
+        volumes:
+            - ./:/srv/new-app-web:rw
+
+    node:
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+            target: node
+        environment:
+            - 'NODE_USER=${_UID}'
+            # Comment the first line hereunder and uncomment the second line to run Nightwatch tests locally
+            - 'API_ENDPOINT=http://localhost:1080'
+#            - 'API_ENDPOINT=http://api-nginx:80'
+            # Uncomment line down to activate API logs locally
+#            - API_LOG=yes
+            # Uncomment line down to activate API fake if some exist
+#            - API_FAKE=yes
+            - 'WS_ENDPOINT=http://sigsrv-node:3000'
+            - 'BROWSER_ENTRYPOINT=${API_ENTRYPOINT:-http://nginx}'
+        volumes:
+            - ./:/srv/new-app-web:rw

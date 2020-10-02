@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Install/update dependencies
+echo "Node user id: ${NODE_USER}"
+## Set the yarn default cache location
+#yarn config set cache-folder /tmp/.yarn-user-cache
+# Install application dependencies
+gosu "${NODE_USER}:${NODE_USER}" yarn install --non-interactive --no-progress
+
+exec gosu "${NODE_USER}:${NODE_USER}" "$@"

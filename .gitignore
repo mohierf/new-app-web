@@ -11,6 +11,9 @@
 # production
 /build
 
+# docker files
+docker-compose.override.yml
+
 # misc
 .DS_Store
 .env.local

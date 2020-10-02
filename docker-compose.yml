@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+
+    nginx:
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+            target: nginx
+        environment:
+            - 'API_ENDPOINT=${API_ENDPOINT:-http://api-nginx:80}'
+            - 'WS_ENDPOINT=${WS_ENDPOINT:-http://sigsrv-node:81}'
+            - 'BRANDING=${BRANDING:-default}'
+        image: docker.registry.tmm-software.net/aptelecare/new-app-web/nginx:${BRANCH:-develop}
+
+    node:
+        stdin_open: true
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+            target: node
+        environment:
+            - 'API_ENDPOINT=${API_ENDPOINT:-http://api-nginx:80}'
+            - 'WS_ENDPOINT=${WS_ENDPOINT:-http://sigsrv-node:81}'
+            - 'BRANDING=${BRANDING:-default}'
+#           For testing only:
+            - 'BROWSER_ENTRYPOINT=${API_ENTRYPOINT:-http://nginx}'
+            - 'SELENIUM_CHROME_HOST=${SELENIUM_CHROME_HOST:-selenium-chrome}'
+        image: docker.registry.tmm-software.net/aptelecare/new-app-web/node:${BRANCH:-develop}
+#        volumes:
+#            - ./reports:/srv/new-app-web/reports

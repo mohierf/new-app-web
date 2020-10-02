@@ -1,0 +1,16 @@
+server {
+    listen       80 default_server;
+
+    root         /srv/new-app-web/build;
+    index        index.html;
+
+    location / {
+        sub_filter '__API_ENDPOINT__' '${API_ENDPOINT}';
+        sub_filter '__WS_ENDPOINT__' '${WS_ENDPOINT}';
+        sub_filter_once off;
+
+        rewrite ^/theme/(.+) /brand/${BRANDING}/$1;
+
+        try_files $uri $uri/ /index.html;
+    }
+}
